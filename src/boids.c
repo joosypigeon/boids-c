@@ -49,13 +49,14 @@ void UpdateBoids()
         int neighborCount = 0;
 
         BoidNode* neighbors = find_neighbors(&boids[i]);
+        BoidNode* iter = neighbors;
         //int nCount = length(neighbors);
         //printf("Boid %d has %d neighbors\n", i, nCount);
         //int count = 0;
-        while(neighbors) {
+        while(iter) {
             //count++;
             //if (count > 100) break; // Limit to 10 neighbors for performance
-            Boid* neighbor = neighbors->boid;
+            Boid* neighbor = iter->boid;
             float dist = Vector2Distance(boids[i].position, neighbor->position);
 
             if (dist < PROTECTED_RADIUS) {
@@ -67,7 +68,7 @@ void UpdateBoids()
                 cohesion = Vector2Add(cohesion, neighbor->position);
                 neighborCount++;
             }
-            neighbors = neighbors->next;
+            iter = iter->next;
         }
 
         free_boid_node(neighbors);
