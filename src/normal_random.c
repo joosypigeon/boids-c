@@ -2,6 +2,10 @@
 #include <math.h>
 #include <stdlib.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 // Returns a normally distributed value with given mean and standard deviation
 float random_normal(float mean, float stddev) {
     // Use Box-Muller transform

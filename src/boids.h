@@ -4,7 +4,7 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#define MAX_BOIDS 10000
+#define MAX_BOIDS 30000
 
 
 
@@ -49,7 +49,7 @@ void insert_boid(Boid* p);
 BoidNode* find_neighbors(Boid* p);
 
 void InitBoids(void);
-void UpdateBoids(void);
+void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWeight);
 void DrawBoids(void);
 
 int get_max_neighbors(void);

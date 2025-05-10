@@ -2,6 +2,9 @@
 #include <omp.h>
 #include "boids.h"
 
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+
 int SCREEN_WIDTH;
 int SCREEN_HEIGHT;
 
@@ -22,9 +25,16 @@ int main(void)
 
     InitBoids();
 
+    // Example GUI controls
+    static float alignmentWeight = 1.0f;
+    static float cohesionWeight = 1.0f;
+    static float separationWeight = 1.0f;
+
     while (!WindowShouldClose())
     {
-        UpdateBoids();
+
+
+        UpdateBoids(alignmentWeight, cohesionWeight, separationWeight);
 
         BeginDrawing();
             ClearBackground(RAYWHITE);
@@ -37,6 +47,35 @@ int main(void)
             DrawText(TextFormat("OpenMP threads: %d", omp_get_max_threads()), 20, 140, 30, BLUE);
             DrawText(TextFormat("Max neighbors: %d", get_max_neighbors()), 20, 170, 30, BLUE);
             DrawFPS(SCREEN_WIDTH - 100, 10);
+
+            // Start the sliders below the text stats
+            Rectangle sliderBounds = { 100, 240, 300, 30 };
+            float sliderSpacing = 50;
+
+            // Optional: Draw a heading in larger font
+            DrawText("Boid Behaviour Weights", sliderBounds.x, sliderBounds.y - 40, 28, DARKGRAY);
+
+            // Make font size larger manually
+            int labelFontSize = 22;
+            int valueFontSize = 22;
+
+            GuiSlider(sliderBounds,
+                TextFormat("Alignment (%.2f)", alignmentWeight),
+                NULL,
+                &alignmentWeight, 0.0f, 10.0f);
+            sliderBounds.y += sliderSpacing;
+
+            GuiSlider(sliderBounds,
+                TextFormat("Cohesion (%.2f)", cohesionWeight),
+                NULL,
+                &cohesionWeight, 0.0f, 10.0f);
+            sliderBounds.y += sliderSpacing;
+
+            GuiSlider(sliderBounds,
+                TextFormat("Separation (%.2f)", separationWeight),
+                NULL,
+                &separationWeight, 0.0f, 10.0f);
+
         EndDrawing();
     }
 
