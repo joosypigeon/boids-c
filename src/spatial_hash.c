@@ -1,27 +1,8 @@
-#include "spatial_hash.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-
+#include "spatial_hash.h"
 #include "boids.h"
-
-
-int length(BoidNode* node) {
-    int count = 0;
-    while (node) {
-        count++;
-        node = node->next;
-    }
-    return count;
-}
-
-void free_boid_node(BoidNode* node) {
-    while(node) {
-        BoidNode* next = node->next;
-        free(node);
-        node = next;
-    }
-}
 
 HashCell hash_table[HASH_SIZE];
 
@@ -72,11 +53,11 @@ void insert_boid(Boid* p) {
     }
 }
 
-BoidNode* find_neighbors(Boid* p) {
-    BoidNode* neighbors = NULL;
+FlockForces ComputeFlockForces(Boid *boid) {
+    FlockForces forces = {0};
 
-    int cell_x = (int)(p->position.x / CELL_SIZE);
-    int cell_y = (int)(p->position.y / CELL_SIZE);
+    int cell_x = (int)(boid->position.x / CELL_SIZE);
+    int cell_y = (int)(boid->position.y / CELL_SIZE);
 
     for (int dx = -1; dx <= 1; ++dx) {
         for (int dy = -1; dy <= 1; ++dy) {
@@ -85,17 +66,26 @@ BoidNode* find_neighbors(Boid* p) {
             unsigned int index = hash_cell(nx, ny);
 
             HashCell* cell = &hash_table[index];
-            for(int i = 0; i < cell->length; ++i) {
-                Boid* neighbor = cell->boids[i];
-                if (neighbor != p) {
-                    BoidNode* new_node = malloc(sizeof(BoidNode));
-                    new_node->boid = neighbor;
-                    new_node->next = neighbors;
-                    neighbors = new_node;
+            for (int j = 0; j < cell->length; ++j) {
+                Boid* neighbor = cell->boids[j];
+                if (neighbor != boid) {
+                    float dist = Vector2Distance(boid->position, neighbor->position);
+                    if (dist < PROTECTED_RADIUS) {
+                        Vector2 diff = Vector2Subtract(boid->position, neighbor->position);
+                        if (dist != 0) diff = Vector2Scale(diff, 1.0f / dist);
+                        forces.separation = Vector2Add(forces.separation, diff);
+                    } else if (dist < NEIGHBOR_RADIUS) {
+                        forces.alignment = Vector2Add(forces.alignment, neighbor->velocity);
+                        forces.cohesion = Vector2Add(forces.cohesion, neighbor->position);
+                        forces.neighborCount++;
+                    }
                 }
             }
         }
     }
-
-    return neighbors;
+    if (forces.neighborCount > 0) {
+        forces.alignment = Vector2Scale(forces.alignment, 1.0f / forces.neighborCount);
+        forces.cohesion = Vector2Scale(forces.cohesion, 1.0f / forces.neighborCount);
+    }
+    return forces;
 }

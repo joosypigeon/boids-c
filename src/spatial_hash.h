@@ -11,6 +11,13 @@
 #define INITIAL_MAX_BOIDS_PER_CELL 128 // Tweak as needed
 
 typedef struct {
+    Vector2 alignment;
+    Vector2 cohesion;
+    Vector2 separation;
+    int neighborCount;
+} FlockForces;
+
+typedef struct {
     int length;
     int max_length;
     Boid** boids;  // dynamically allocated array
@@ -21,8 +28,9 @@ extern HashCell hash_table[HASH_SIZE];
 void init_spatial_hash(void);
 void clear_spatial_hash(void);
 unsigned int hash_cell(int cell_x, int cell_y);
-BoidNode* find_neighbors(Boid* p);
 void free_boid_node(BoidNode* node);
+
+FlockForces ComputeFlockForces(Boid *boid);
 
 int length(BoidNode* node);
 

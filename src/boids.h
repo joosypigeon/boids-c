@@ -46,13 +46,10 @@ typedef struct BoidNode {
 void init_spatial_hash(void);
 void clear_spatial_hash(void);
 void insert_boid(Boid* p);
-BoidNode* find_neighbors(Boid* p);
 
 void InitBoids(void);
 void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWeight);
 void DrawBoids(void);
-
-int get_max_neighbors(void);
 
 extern int number_drawn;
 #endif // BOIDS_H

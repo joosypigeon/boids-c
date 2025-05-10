@@ -45,7 +45,6 @@ int main(void)
             DrawText(TextFormat("Boids drawn: %d", number_drawn), 20, 80, 30, BLUE);
             DrawText(TextFormat("Frame Time: %0.2f ms", GetFrameTime() * 1000), 20, 110, 30, BLUE);
             DrawText(TextFormat("OpenMP threads: %d", omp_get_max_threads()), 20, 140, 30, BLUE);
-            DrawText(TextFormat("Max neighbors: %d", get_max_neighbors()), 20, 170, 30, BLUE);
             DrawFPS(SCREEN_WIDTH - 100, 10);
 
             // Start the sliders below the text stats
