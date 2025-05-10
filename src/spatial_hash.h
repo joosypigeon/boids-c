@@ -8,7 +8,7 @@
 #define CELL_SIZE 50.0f
 
 
-#define INITIAL_MAX_BOIDS_PER_CELL 128 // Tweak as needed
+#define INITIAL_MAX_BOIDS_PER_CELL 256 // Tweak as needed
 
 typedef struct {
     Vector2 alignment;

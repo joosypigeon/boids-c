@@ -47,7 +47,6 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
     #pragma omp parallel for schedule(static)
     for (int boid_index = 0; boid_index < MAX_BOIDS; boid_index++) {
         Boid* self = &boids[boid_index];
-        self->predated = false;
         self->velocity_update = self->velocity;
         self->position_update = self->position;
 
@@ -61,6 +60,9 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
             if (distToPredator != 0)
                 predatorVec = Vector2Scale(predatorVec, PREDATOR_AVOID_FACTOR / distToPredator);
             self->velocity_update = Vector2Add(self->velocity_update, predatorVec);
+        }
+        else {
+            self->predated = false;
         }
 
         // Apply flocking behaviour
@@ -109,24 +111,23 @@ int number_drawn = 0;
 
 void DrawBoid(Boid boid) {
     number_drawn++;
-    // Normalize velocity to get direction
-    // Vector2 dir = Vector2Normalize(boid.velocity);
-
-    // Draw main circle
-    // DrawCircleLinesV(boid.position, PROTECTED_RADIUS/2.0, boid.predated ? GREEN : RED);
-
-    // Draw center dot
-    //DrawCircleV(boid.position, 2.0f, DARKGRAY);
     float size = BOID_RADIUS;
     Vector2 topLeft = { boid.position.x - size / 2, boid.position.y - size / 2 };
     DrawRectangleV(topLeft, (Vector2){size, size}, DARKGRAY);
+    if (drawFullGlyph) {
+        // Normalize velocity to get direction
+        Vector2 dir = Vector2Normalize(boid.velocity);
 
-    // Compute tail endpoint (outside of the circle)
-    //Vector2 tailDir = Vector2Scale(dir, -(10.0f + 10)); // 10 pixels past edge
-    //Vector2 tailEnd = Vector2Add(boid.position, tailDir);
+        // Draw main circle
+        DrawCircleLinesV(boid.position, PROTECTED_RADIUS/2.0, boid.predated ? GREEN : RED);
 
-    // Draw tail line
-    //DrawLineV(boid.position, tailEnd, RED);
+        // Compute tail endpoint (outside of the circle)
+        Vector2 tailDir = Vector2Scale(dir, -(10.0f + 10)); // 10 pixels past edge
+        Vector2 tailEnd = Vector2Add(boid.position, tailDir);
+
+        // Draw tail line
+        DrawLineV(boid.position, tailEnd, boid.predated ? GREEN : RED);
+    }
 }
 
 void DrawPreditor(Boid boid) {

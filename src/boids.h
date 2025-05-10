@@ -1,10 +1,11 @@
 #ifndef BOIDS_H
 #define BOIDS_H
+#include <stdbool.h>
 
 #include "raylib.h"
 #include "raymath.h"
 
-#define MAX_BOIDS 10000
+#define MAX_BOIDS 5000
 
 
 
@@ -25,6 +26,8 @@
 
 extern int SCREEN_WIDTH;
 extern int SCREEN_HEIGHT;
+
+extern bool drawFullGlyph;
 
 // Boid structure
 typedef struct Boid {

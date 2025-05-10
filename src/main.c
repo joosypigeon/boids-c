@@ -7,10 +7,11 @@
 
 int SCREEN_WIDTH;
 int SCREEN_HEIGHT;
+bool drawFullGlyph = false;
 
 int main(void)
 {
-
+    
 
     SetConfigFlags(FLAG_FULLSCREEN_MODE);
     InitWindow(0, 0, "Fullscreen at Desktop Resolution");
@@ -25,15 +26,12 @@ int main(void)
 
     InitBoids();
 
-    // Example GUI controls
     static float alignmentWeight = 1.0f;
     static float cohesionWeight = 1.0f;
     static float separationWeight = 1.0f;
 
     while (!WindowShouldClose())
     {
-
-
         UpdateBoids(alignmentWeight, cohesionWeight, separationWeight);
 
         BeginDrawing();
@@ -45,10 +43,16 @@ int main(void)
             DrawText(TextFormat("Boids drawn: %d", number_drawn), 20, 80, 30, BLUE);
             DrawText(TextFormat("Frame Time: %0.2f ms", GetFrameTime() * 1000), 20, 110, 30, BLUE);
             DrawText(TextFormat("OpenMP threads: %d", omp_get_max_threads()), 20, 140, 30, BLUE);
+
+            int oldTextSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
+            GuiSetStyle(DEFAULT, TEXT_SIZE, 24);
+            GuiCheckBox((Rectangle){ 500, 10, 28, 28 }, "Draw Full Boid Glyph", &drawFullGlyph);
+            GuiSetStyle(DEFAULT, TEXT_SIZE, oldTextSize);  // Restore to avoid breaking other widgets
+            
             DrawFPS(SCREEN_WIDTH - 100, 10);
 
             // Start the sliders below the text stats
-            Rectangle sliderBounds = { 500, 60, 300, 30 };
+            Rectangle sliderBounds = { 500, 110, 300, 30 };
             float sliderSpacing = 50;
 
             // Optional: Draw a heading in larger font
