@@ -1,0 +1,46 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build-debug",
+        "type": "shell",
+        "command": "gcc",
+        "args": [
+          "-g",
+          "-Wall",
+          "-Wextra",
+          "-o", "boids-debug",
+          "src/*.c",
+          "-lraylib",
+          "-lm",
+          "-lpthread",
+          "-ldl",
+          "-lGL"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": ["$gcc"]
+      },
+      {
+        "label": "build-release",
+        "type": "shell",
+        "command": "gcc",
+        "args": [
+          "-O2",
+          "-DNDEBUG",
+          "-o", "boids",
+          "src/*.c",
+          "-lraylib",
+          "-lm",
+          "-lpthread",
+          "-ldl",
+          "-lGL"
+        ],
+        "group": "build",
+        "problemMatcher": ["$gcc"]
+      }
+    ]
+  }
+  
