@@ -6,6 +6,7 @@
         "type": "shell",
         "command": "gcc",
         "args": [
+        "-fopenmp",
           "-g",
           "-Wall",
           "-Wextra",
@@ -28,6 +29,7 @@
         "type": "shell",
         "command": "gcc",
         "args": [
+        "-fopenmp",
           "-O2",
           "-DNDEBUG",
           "-o", "boids",

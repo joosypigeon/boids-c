@@ -24,7 +24,7 @@ void free_boid_node(BoidNode* node) {
 static BoidNode* hash_table[HASH_SIZE] = {0};
 
 static unsigned int hash_cell(int cell_x, int cell_y) {
-    unsigned int hash = (unsigned)(cell_x * 73856093) ^ (cell_y * 19349663);
+    unsigned int hash = (unsigned)(cell_x * 73856093) ^ (cell_y * 19349669);
     return hash % HASH_SIZE;
 }
 

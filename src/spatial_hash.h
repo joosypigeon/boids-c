@@ -5,7 +5,7 @@
 #include "boids.h"
 
 #define HASH_SIZE 10007
-#define CELL_SIZE 40.0f
+#define CELL_SIZE 50.0f
 
 void init_spatial_hash(void);
 void clear_spatial_hash(void);

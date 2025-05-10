@@ -8,18 +8,18 @@
 
 
 
-#define NEIGHBOR_RADIUS 40.0f
-#define PROTECTED_RADIUS 8.0f
-#define PREDATOR_RADIUS 90.0f
+#define NEIGHBOR_RADIUS 50.0f
+#define PROTECTED_RADIUS 10.0f
+#define PREDATOR_RADIUS 120.0f
 
-#define AVOID_FACTOR 0.05f
-#define MATCH_FACTOR 0.05f
-#define CENTER_FACTOR 0.0005f
+#define AVOID_FACTOR 0.15f
+#define MATCH_FACTOR 0.1f
+#define CENTER_FACTOR 0.001f
 #define TURN_FACTOR 0.2f
-#define PREDATOR_AVOID_FACTOR 10.0f
+#define PREDATOR_AVOID_FACTOR 25.0f
 
-#define MAX_SPEED 1.0f
-#define MIN_SPEED 0.5f
+#define MAX_SPEED 4.5f
+#define MIN_SPEED 1.0f
 
 #define BOID_RADIUS 2.0f
 
@@ -51,6 +51,8 @@ BoidNode* find_neighbors(Boid* p);
 void InitBoids(void);
 void UpdateBoids(void);
 void DrawBoids(void);
+
+int get_max_neighbors(void);
 
 extern int number_drawn;
 #endif // BOIDS_H
