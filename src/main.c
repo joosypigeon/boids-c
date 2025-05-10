@@ -48,7 +48,7 @@ int main(void)
             DrawFPS(SCREEN_WIDTH - 100, 10);
 
             // Start the sliders below the text stats
-            Rectangle sliderBounds = { 100, 240, 300, 30 };
+            Rectangle sliderBounds = { 500, 60, 300, 30 };
             float sliderSpacing = 50;
 
             // Optional: Draw a heading in larger font
