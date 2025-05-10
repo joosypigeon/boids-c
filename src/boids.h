@@ -4,7 +4,7 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#define MAX_BOIDS 30000
+#define MAX_BOIDS 10000
 
 
 

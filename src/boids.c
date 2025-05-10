@@ -105,9 +105,8 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
     insert_boid(&boids[MAX_BOIDS]);
 }
 
-
-
 int number_drawn = 0;
+
 void DrawBoid(Boid boid) {
     number_drawn++;
     // Normalize velocity to get direction
@@ -117,7 +116,10 @@ void DrawBoid(Boid boid) {
     // DrawCircleLinesV(boid.position, PROTECTED_RADIUS/2.0, boid.predated ? GREEN : RED);
 
     // Draw center dot
-    DrawCircleV(boid.position, 2.0f, DARKGRAY);
+    //DrawCircleV(boid.position, 2.0f, DARKGRAY);
+    float size = BOID_RADIUS;
+    Vector2 topLeft = { boid.position.x - size / 2, boid.position.y - size / 2 };
+    DrawRectangleV(topLeft, (Vector2){size, size}, DARKGRAY);
 
     // Compute tail endpoint (outside of the circle)
     //Vector2 tailDir = Vector2Scale(dir, -(10.0f + 10)); // 10 pixels past edge
