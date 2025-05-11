@@ -5,7 +5,7 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#define MAX_BOIDS 5000
+#define MAX_BOIDS 200000
 
 
 
@@ -37,6 +37,7 @@ typedef struct Boid {
     Vector2 position_update;
     Vector2 velocity_update;
     int neighborCount;
+    int nearNeighborCount;
     bool predated;
     bool isPredator;
 } Boid;

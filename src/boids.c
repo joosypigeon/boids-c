@@ -33,6 +33,7 @@ void InitBoids()
         boids[i].velocity = Vector2Scale((Vector2){ cosf(angle), sinf(angle) }, speed);
         boids[i].isPredator = false;
         boids[i].neighborCount = -1;
+        boids[i].nearNeighborCount = -1;
         insert_boid(&boids[i]);
     }
     // Predator
@@ -53,6 +54,7 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
 
         FlockForces forces = ComputeFlockForces(self);
         self->neighborCount = forces.neighborCount;
+        self->nearNeighborCount = forces.nearNeighborCount;
 
         // Predator avoidance
         Vector2 predatorVec = Vector2Subtract(self->position, boids[MAX_BOIDS].position);
@@ -142,14 +144,7 @@ void DrawBoid(Boid boid) {
     number_drawn++;
     float size = BOID_RADIUS;
     Vector2 topLeft = { boid.position.x - size / 2, boid.position.y - size / 2 };
-    Color color =  drawDensity ? colors[int_log2(boid.neighborCount)] : DARKGRAY;
-    if (&color == &colors[1]) {
-        // If the color is the first one, use a different color
-        if (boid.neighborCount > 1) {
-            printf("Boid has cold color but non-zero neighbor count (%d)\n", boid.neighborCount);
-            exit(1);
-        } 
-    }
+    Color color =  drawDensity ? colors[int_log2(boid.neighborCount + boid.nearNeighborCount)] : DARKGRAY;
     DrawRectangleV(topLeft, (Vector2){size, size}, color);
     if (drawFullGlyph) {
         // Normalize velocity to get direction

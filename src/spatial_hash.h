@@ -15,6 +15,7 @@ typedef struct {
     Vector2 cohesion;
     Vector2 separation;
     int neighborCount;
+    int nearNeighborCount;
 } FlockForces;
 
 typedef struct {
