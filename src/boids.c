@@ -32,6 +32,7 @@ void InitBoids()
         float speed = random_normal(4.0f, 3.0f);
         boids[i].velocity = Vector2Scale((Vector2){ cosf(angle), sinf(angle) }, speed);
         boids[i].isPredator = false;
+        boids[i].neighborCount = -1;
         insert_boid(&boids[i]);
     }
     // Predator
@@ -51,6 +52,7 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
         self->position_update = self->position;
 
         FlockForces forces = ComputeFlockForces(self);
+        self->neighborCount = forces.neighborCount;
 
         // Predator avoidance
         Vector2 predatorVec = Vector2Subtract(self->position, boids[MAX_BOIDS].position);
@@ -107,26 +109,61 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
     insert_boid(&boids[MAX_BOIDS]);
 }
 
+static Color colors[11] = {
+    (Color){  0,  40,  82, 255},  // Deep Blue (20% darker)
+    (Color){  0,  60, 122, 255},
+    (Color){  0,  81, 163, 255},
+    (Color){ 40, 122, 204, 255},  // Light Blue
+    (Color){ 81, 163, 204, 255},  // Cyanish
+    (Color){102, 184, 184, 255},  // Light greenish-cyan
+    (Color){122, 204, 163, 255},  // Minty green
+    (Color){204, 204,  81, 255},  // Yellow
+    (Color){204, 163,  40, 255},  // Orange-Yellow
+    (Color){204,  81,  40, 255},  // Orange
+    (Color){163,   0,   0, 255}   // Deep Red (hottest)
+};
+
+int int_log2(int x) {
+    if (x < 0) { exit(0); } // Error: log2(0) is undefined}
+    if (x <= 0) {
+        return 0;
+    }
+    int log = 0;
+    while (x >>= 1) {
+        log++;
+        if (log >= 10) return 10;
+        }
+    return log;
+}
+
 int number_drawn = 0;
 
 void DrawBoid(Boid boid) {
     number_drawn++;
     float size = BOID_RADIUS;
     Vector2 topLeft = { boid.position.x - size / 2, boid.position.y - size / 2 };
-    DrawRectangleV(topLeft, (Vector2){size, size}, DARKGRAY);
+    Color color =  drawDensity ? colors[int_log2(boid.neighborCount)] : DARKGRAY;
+    if (&color == &colors[1]) {
+        // If the color is the first one, use a different color
+        if (boid.neighborCount > 1) {
+            printf("Boid has cold color but non-zero neighbor count (%d)\n", boid.neighborCount);
+            exit(1);
+        } 
+    }
+    DrawRectangleV(topLeft, (Vector2){size, size}, color);
     if (drawFullGlyph) {
         // Normalize velocity to get direction
         Vector2 dir = Vector2Normalize(boid.velocity);
 
         // Draw main circle
-        DrawCircleLinesV(boid.position, PROTECTED_RADIUS/2.0, boid.predated ? GREEN : RED);
+        DrawCircleLinesV(boid.position, PROTECTED_RADIUS/2.0, boid.predated ? GREEN : color);
 
         // Compute tail endpoint (outside of the circle)
         Vector2 tailDir = Vector2Scale(dir, -(10.0f + 10)); // 10 pixels past edge
         Vector2 tailEnd = Vector2Add(boid.position, tailDir);
 
         // Draw tail line
-        DrawLineV(boid.position, tailEnd, boid.predated ? GREEN : RED);
+        DrawLineV(boid.position, tailEnd, boid.predated ? GREEN : color);
     }
 }
 

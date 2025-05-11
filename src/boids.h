@@ -28,6 +28,7 @@ extern int SCREEN_WIDTH;
 extern int SCREEN_HEIGHT;
 
 extern bool drawFullGlyph;
+extern bool drawDensity;
 
 // Boid structure
 typedef struct Boid {
@@ -35,6 +36,7 @@ typedef struct Boid {
     Vector2 velocity;
     Vector2 position_update;
     Vector2 velocity_update;
+    int neighborCount;
     bool predated;
     bool isPredator;
 } Boid;

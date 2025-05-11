@@ -8,6 +8,7 @@
 int SCREEN_WIDTH;
 int SCREEN_HEIGHT;
 bool drawFullGlyph = false;
+bool drawDensity = false;
 
 int main(void)
 {
@@ -47,6 +48,8 @@ int main(void)
             int oldTextSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
             GuiSetStyle(DEFAULT, TEXT_SIZE, 24);
             GuiCheckBox((Rectangle){ 500, 10, 28, 28 }, "Draw Full Boid Glyph", &drawFullGlyph);
+            GuiCheckBox((Rectangle){ 500, 40, 28, 28 }, "Show density", &drawDensity);
+
             GuiSetStyle(DEFAULT, TEXT_SIZE, oldTextSize);  // Restore to avoid breaking other widgets
             
             DrawFPS(SCREEN_WIDTH - 100, 10);
