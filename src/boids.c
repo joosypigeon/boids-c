@@ -11,17 +11,7 @@
 
 Boid boids[MAX_BOIDS + 2]; // +1 for predator, +1 for mouse
 
-// Helper function to limit vector length
-Vector2 Vector2Limit(Vector2 v, float max)
-{
-    if (Vector2Length(v) > max) {
-        v = Vector2Scale(Vector2Normalize(v), max);
-    }
-    return v;
-}
-
-void InitBoids()
-{
+void InitBoids() {
     // Initialize spatial hash
     init_spatial_hash();
 
@@ -37,15 +27,26 @@ void InitBoids()
         insert_boid(&boids[i]);
     }
     // Predator
-    boids[MAX_BOIDS].position = (Vector2){ SCREEN_WIDTH/2, SCREEN_HEIGHT/2 };
-    boids[MAX_BOIDS].velocity = (Vector2){ 2.0f, 2.0f };
-    boids[MAX_BOIDS].isPredator = true;
+    boids[PREDITOR_INDEX].position = (Vector2){ SCREEN_WIDTH/2, SCREEN_HEIGHT/2 };
+    boids[PREDITOR_INDEX].velocity = (Vector2){ PREDATOR_SPEED, PREDATOR_SPEED };
+    boids[PREDITOR_INDEX].isPredator = true;
 
     // Mouse
-    boids[MAX_BOIDS + 1].position = (Vector2){ -1.0f, -1.0f };
-    boids[MAX_BOIDS + 1].velocity = (Vector2){ 0.0f, 0.0f };
-    boids[MAX_BOIDS + 1].isPredator = false;
+    boids[MOUSE_INDEX].position = (Vector2){ -1.0f, -1.0f };
+    boids[MOUSE_INDEX].velocity = (Vector2){ 0.0f, 0.0f };
+    boids[MOUSE_INDEX].isPredator = false;
     insert_boid(&boids[MAX_BOIDS]);
+}
+
+Vector2 Vector2Wrap(Vector2 v, float width, float height)
+{
+    if (v.x < 0) v.x += width;
+    else if (v.x >= width) v.x -= width;
+
+    if (v.y < 0) v.y += height;
+    else if (v.y >= height) v.y -= height;
+
+    return v;
 }
 
 void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWeight)
@@ -54,12 +55,26 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
     #pragma omp parallel for schedule(static)
     for (int boid_index = 0; boid_index < MAX_BOIDS; boid_index++) {
         Boid* self = &boids[boid_index];
+
+        // Initialize updates
         self->velocity_update = self->velocity;
         self->position_update = self->position;
 
+        // Compute flocking forces
+        // ComputeFlockForces() is a function that computes the alignment, cohesion, and separation forces
         FlockForces forces = ComputeFlockForces(self);
         self->neighborCount = forces.neighborCount;
         self->nearNeighborCount = forces.nearNeighborCount;
+
+        // Apply flocking behaviour
+        if (forces.neighborCount > 0) {
+            Vector2 align_force = Vector2Subtract(forces.alignment, self->velocity);
+            self->velocity_update = Vector2Add(self->velocity_update, Vector2Scale(align_force, MATCH_FACTOR * alignmentWeight));
+
+            Vector2 cohesion_force = Vector2Subtract(forces.cohesion, self->position);
+            self->velocity_update = Vector2Add(self->velocity_update, Vector2Scale(cohesion_force, CENTER_FACTOR * cohesionWeight));
+        }
+        self->velocity_update = Vector2Add(self->velocity_update, Vector2Scale(forces.separation, AVOID_FACTOR * separationWeight));
 
         // Predator avoidance
         Vector2 predatorVec = Vector2Subtract(self->position, boids[MAX_BOIDS].position);
@@ -80,44 +95,26 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
             float distToMouse = Vector2Length(mouseVec);
             if (distToMouse < MOUSE_RADIUS) {
                 self->predated = true;
-                if (distToMouse != 0)
-                    mouseVec = Vector2Scale(mouseVec, - MOUSE_ATTRACTION_FACTOR / distToMouse);
+                if (distToMouse != 0) mouseVec = Vector2Scale(mouseVec, - MOUSE_ATTRACTION_FACTOR / distToMouse);
                 self->velocity_update = Vector2Add(self->velocity_update, mouseVec);
             }
         }
 
-
-        // Apply flocking behaviour
-        if (forces.neighborCount > 0) {
-            Vector2 align_force = Vector2Subtract(forces.alignment, self->velocity);
-            self->velocity_update = Vector2Add(self->velocity_update, Vector2Scale(align_force, MATCH_FACTOR * alignmentWeight));
-
-            Vector2 cohesion_force = Vector2Subtract(forces.cohesion, self->position);
-            self->velocity_update = Vector2Add(self->velocity_update, Vector2Scale(cohesion_force, CENTER_FACTOR * cohesionWeight));
-        }
-
-        self->velocity_update = Vector2Add(self->velocity_update, Vector2Scale(forces.separation, AVOID_FACTOR * separationWeight));
-
         // Speed limiting
-        float speed = Vector2Length(self->velocity_update);
-        if (speed > MAX_SPEED) self->velocity_update = Vector2Scale(Vector2Normalize(self->velocity_update), MAX_SPEED);
-        if (speed < MIN_SPEED) self->velocity_update = Vector2Scale(Vector2Normalize(self->velocity_update), MIN_SPEED);
+        self->velocity_update = Vector2ClampValue(self->velocity_update, MIN_SPEED, MAX_SPEED);
 
         // Predict next position
         self->position_update = Vector2Add(self->position, Vector2Scale(self->velocity_update, GetFrameTime() * 60.0f));
 
         // Screen wrap
-        if (self->position_update.x < 0) self->position_update.x += SCREEN_WIDTH;
-        if (self->position_update.x > SCREEN_WIDTH) self->position_update.x -= SCREEN_WIDTH;
-        if (self->position_update.y < 0) self->position_update.y += SCREEN_HEIGHT;
-        if (self->position_update.y > SCREEN_HEIGHT) self->position_update.y -= SCREEN_HEIGHT;
+        self->position_update = Vector2Wrap(self->position_update, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
     // Move predator (serial)
-    int pred = MAX_BOIDS;
-    boids[pred].position = Vector2Add(boids[pred].position, Vector2Scale(boids[pred].velocity, GetFrameTime() * 60.0f));
-    if (boids[pred].position.x < 0 || boids[pred].position.x > SCREEN_WIDTH) boids[pred].velocity.x *= -1;
-    if (boids[pred].position.y < 0 || boids[pred].position.y > SCREEN_HEIGHT) boids[pred].velocity.y *= -1;
+    boids[PREDITOR_INDEX].position = Vector2Add(boids[PREDITOR_INDEX].position, Vector2Scale(boids[PREDITOR_INDEX].velocity, GetFrameTime() * 60.0f));
+    //if (boids[PREDITOR_INDEX].position.x < 0 || boids[PREDITOR_INDEX].position.x > SCREEN_WIDTH) boids[PREDITOR_INDEX].velocity.x *= -1;
+    //if (boids[PREDITOR_INDEX].position.y < 0 || boids[PREDITOR_INDEX].position.y > SCREEN_HEIGHT) boids[PREDITOR_INDEX].velocity.y *= -1;
+    boids[PREDITOR_INDEX].position = Vector2Wrap(boids[PREDITOR_INDEX].position, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     // Commit updates and rebuild spatial hash (serial)
     clear_spatial_hash();

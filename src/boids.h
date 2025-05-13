@@ -5,14 +5,14 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#define MAX_BOIDS 5000
+#define MAX_BOIDS 10000
 #define PREDITOR_INDEX MAX_BOIDS
 #define MOUSE_INDEX (MAX_BOIDS + 1)
 
 
 #define NEIGHBOR_RADIUS 50.0f
 #define PROTECTED_RADIUS 10.0f
-#define PREDATOR_RADIUS 120.0f
+#define PREDATOR_RADIUS 50.0f
 #define MOUSE_RADIUS 120.0f
 
 #define AVOID_FACTOR 0.15f
@@ -24,6 +24,7 @@
 
 #define MAX_SPEED 4.5f
 #define MIN_SPEED 1.0f
+#define PREDATOR_SPEED 6.0f
 
 #define BOID_RADIUS 2.0f
 

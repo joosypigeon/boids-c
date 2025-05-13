@@ -72,7 +72,7 @@ FlockForces ComputeFlockForces(Boid *boid) {
                     float dist = Vector2Distance(boid->position, neighbor->position);
                     if (dist < PROTECTED_RADIUS) {
                         Vector2 diff = Vector2Subtract(boid->position, neighbor->position);
-                        if (dist != 0) diff = Vector2Scale(diff, 1.0f / dist);
+                        if (dist != 0) diff = Vector2Scale(diff, 1.0f / (dist*dist)) ;
                         forces.separation = Vector2Add(forces.separation, diff);
                         forces.nearNeighborCount++;
                     } else if (dist < NEIGHBOR_RADIUS) {
