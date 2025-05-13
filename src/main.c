@@ -10,6 +10,7 @@ int SCREEN_HEIGHT;
 bool drawFullGlyph = false;
 bool drawDensity = false;
 bool mousePressed = false;
+bool nearestNeighboursNetwork = false;
 
 int main(void)
 {
@@ -43,6 +44,7 @@ int main(void)
             } else mousePressed = false;
             ClearBackground(RAYWHITE);
             DrawBoids();
+            if(nearestNeighboursNetwork) DrawNearestNeighborNetwork();
             DrawText("Boids with Predator Simulation", 20, 10, 20, DARKGRAY);
             DrawText("Current Resolution:", 20, 30, 20, DARKGRAY);
             DrawText(TextFormat("%d x %d", SCREEN_WIDTH, SCREEN_HEIGHT), 20, 50, 30, BLUE);
@@ -54,13 +56,14 @@ int main(void)
             GuiSetStyle(DEFAULT, TEXT_SIZE, 24);
             GuiCheckBox((Rectangle){ 500, 10, 28, 28 }, "Draw Full Boid Glyph", &drawFullGlyph);
             GuiCheckBox((Rectangle){ 500, 40, 28, 28 }, "Show density", &drawDensity);
+            GuiCheckBox((Rectangle){ 500, 70, 28, 28 }, "Show nearest neighbours", &nearestNeighboursNetwork);
 
             GuiSetStyle(DEFAULT, TEXT_SIZE, oldTextSize);  // Restore to avoid breaking other widgets
             
             DrawFPS(SCREEN_WIDTH - 100, 10);
 
             // Start the sliders below the text stats
-            Rectangle sliderBounds = { 500, 110, 300, 30 };
+            Rectangle sliderBounds = { 500, 140, 300, 30 };
             float sliderSpacing = 50;
 
             // Optional: Draw a heading in larger font

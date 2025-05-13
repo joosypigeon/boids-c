@@ -32,8 +32,8 @@ unsigned int hash_cell(int cell_x, int cell_y);
 void free_boid_node(BoidNode* node);
 
 FlockForces ComputeFlockForces(Boid *boid);
+void DrawNearestNeighbor(Boid *boid);
 
-int length(BoidNode* node);
 
 #endif // SPATIAL_HASH_H
 

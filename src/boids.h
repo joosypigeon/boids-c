@@ -33,6 +33,7 @@ extern int SCREEN_HEIGHT;
 
 extern bool drawFullGlyph;
 extern bool drawDensity;
+extern bool nearestNeighboursNetwork;
 
 // Boid structure
 typedef struct Boid {
@@ -60,6 +61,7 @@ void insert_boid(Boid* p);
 void InitBoids(void);
 void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWeight);
 void DrawBoids(void);
+void DrawNearestNeighborNetwork(void);
 
 extern int number_drawn;
 extern bool mousePressed;

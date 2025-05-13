@@ -211,5 +211,7 @@ void DrawBoids() {
     if (mousePressed) DrawMouse(boids[MOUSE_INDEX]);
 }
 
-
+void DrawNearestNeighborNetwork(){
+    for (int i = 0; i < MAX_BOIDS; i++) DrawNearestNeighbor(&boids[i]);
+}
 
