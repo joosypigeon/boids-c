@@ -9,6 +9,7 @@ int SCREEN_WIDTH;
 int SCREEN_HEIGHT;
 bool drawFullGlyph = false;
 bool drawDensity = false;
+bool mousePressed = false;
 
 int main(void)
 {
@@ -36,6 +37,10 @@ int main(void)
         UpdateBoids(alignmentWeight, cohesionWeight, separationWeight);
 
         BeginDrawing();
+            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+                mousePressed = true;
+                boids[MAX_BOIDS + 1].position = GetMousePosition();
+            } else mousePressed = false;
             ClearBackground(RAYWHITE);
             DrawBoids();
             DrawText("Boids with Predator Simulation", 20, 10, 20, DARKGRAY);

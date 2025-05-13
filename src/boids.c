@@ -9,7 +9,7 @@
 #include "spatial_hash.h"
 #include "normal_random.h"
 
-Boid boids[MAX_BOIDS + 1]; // last one is predator
+Boid boids[MAX_BOIDS + 2]; // +1 for predator, +1 for mouse
 
 // Helper function to limit vector length
 Vector2 Vector2Limit(Vector2 v, float max)
@@ -40,6 +40,11 @@ void InitBoids()
     boids[MAX_BOIDS].position = (Vector2){ SCREEN_WIDTH/2, SCREEN_HEIGHT/2 };
     boids[MAX_BOIDS].velocity = (Vector2){ 2.0f, 2.0f };
     boids[MAX_BOIDS].isPredator = true;
+
+    // Mouse
+    boids[MAX_BOIDS + 1].position = (Vector2){ -1.0f, -1.0f };
+    boids[MAX_BOIDS + 1].velocity = (Vector2){ 0.0f, 0.0f };
+    boids[MAX_BOIDS + 1].isPredator = false;
     insert_boid(&boids[MAX_BOIDS]);
 }
 
@@ -68,6 +73,19 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
         else {
             self->predated = false;
         }
+
+        // Mouse
+        if (mousePressed) {
+            Vector2 mouseVec = Vector2Subtract(self->position, boids[MOUSE_INDEX].position);
+            float distToMouse = Vector2Length(mouseVec);
+            if (distToMouse < MOUSE_RADIUS) {
+                self->predated = true;
+                if (distToMouse != 0)
+                    mouseVec = Vector2Scale(mouseVec, - MOUSE_ATTRACTION_FACTOR / distToMouse);
+                self->velocity_update = Vector2Add(self->velocity_update, mouseVec);
+            }
+        }
+
 
         // Apply flocking behaviour
         if (forces.neighborCount > 0) {
@@ -181,18 +199,19 @@ void DrawPreditor(Boid boid) {
     DrawLineV(boid.position, tailEnd, BLUE);
 }
 
-void DrawBoids()
-{
+void DrawMouse(Boid boid) {
+    // Draw main circle
+    DrawCircleLinesV(boid.position, MOUSE_RADIUS, BLUE);
+
+    // Draw center dot
+    DrawCircleV(boid.position, BOID_RADIUS, RED);
+}
+
+void DrawBoids() {
     number_drawn = 0;
-    for (int i = 0; i <= MAX_BOIDS; i++) {
-        if (boids[i].isPredator) {
-            DrawPreditor(boids[i]);
-        } else {
-            //DrawCircleV(boids[i].position, BOID_RADIUS, boids[i].predated ? GREEN : RED);
-            DrawBoid(boids[i]);
-            //DrawText(TextFormat("%d", i), boids[i].position.x, boids[i].position.y - 10, 10, DARKGRAY);
-        }
-    }
+    for (int i = 0; i < MAX_BOIDS; i++) DrawBoid(boids[i]);
+    DrawPreditor(boids[PREDITOR_INDEX]);
+    if (mousePressed) DrawMouse(boids[MOUSE_INDEX]);
 }
 
 

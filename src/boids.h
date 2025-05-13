@@ -5,19 +5,22 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#define MAX_BOIDS 200000
-
+#define MAX_BOIDS 5000
+#define PREDITOR_INDEX MAX_BOIDS
+#define MOUSE_INDEX (MAX_BOIDS + 1)
 
 
 #define NEIGHBOR_RADIUS 50.0f
 #define PROTECTED_RADIUS 10.0f
 #define PREDATOR_RADIUS 120.0f
+#define MOUSE_RADIUS 120.0f
 
 #define AVOID_FACTOR 0.15f
 #define MATCH_FACTOR 0.1f
 #define CENTER_FACTOR 0.001f
 #define TURN_FACTOR 0.2f
 #define PREDATOR_AVOID_FACTOR 25.0f
+#define MOUSE_ATTRACTION_FACTOR 0.5f
 
 #define MAX_SPEED 4.5f
 #define MIN_SPEED 1.0f
@@ -42,7 +45,7 @@ typedef struct Boid {
     bool isPredator;
 } Boid;
 
-extern Boid boids[MAX_BOIDS+1];
+extern Boid boids[MAX_BOIDS+2];
 
 typedef struct BoidNode {
     Boid* boid;
@@ -58,4 +61,5 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
 void DrawBoids(void);
 
 extern int number_drawn;
+extern bool mousePressed;
 #endif // BOIDS_H
