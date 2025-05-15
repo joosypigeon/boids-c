@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <omp.h>
 #include "boids.h"
-
+#include "spatial_hash.h"
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
@@ -11,6 +11,7 @@ bool drawFullGlyph = false;
 bool drawDensity = false;
 bool mousePressed = false;
 bool nearestNeighboursNetwork = false;
+bool pauseSimulation = false;
 
 int main(void)
 {
@@ -35,7 +36,8 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        UpdateBoids(alignmentWeight, cohesionWeight, separationWeight);
+        if (IsKeyPressed(KEY_SPACE)) pauseSimulation = !pauseSimulation;
+        if (!pauseSimulation) UpdateBoids(alignmentWeight, cohesionWeight, separationWeight);
 
         BeginDrawing();
             if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {

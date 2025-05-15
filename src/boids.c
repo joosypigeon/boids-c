@@ -11,6 +11,29 @@
 
 Boid boids[MAX_BOIDS + 2]; // +1 for predator, +1 for mouse
 
+Vector2 Vector2SubtractTorus(Vector2 a, Vector2 b) {
+    Vector2 diff = { a.x - b.x, a.y - b.y };
+
+    if (diff.x >  SCREEN_WIDTH / 2) diff.x -= SCREEN_WIDTH;
+    if (diff.x < -SCREEN_WIDTH / 2) diff.x += SCREEN_WIDTH;
+
+    if (diff.y >  SCREEN_HEIGHT / 2) diff.y -= SCREEN_HEIGHT;
+    if (diff.y < -SCREEN_HEIGHT / 2) diff.y += SCREEN_HEIGHT;
+
+    return diff;
+}
+
+float DistanceOnTorus(Vector2 a, Vector2 b)
+{
+    float dx = fabsf(a.x - b.x);
+    float dy = fabsf(a.y - b.y);
+
+    if (dx > SCREEN_WIDTH / 2) dx = SCREEN_WIDTH - dx;
+    if (dy > SCREEN_HEIGHT / 2) dy = SCREEN_HEIGHT - dy;
+
+    return sqrtf(dx * dx + dy * dy);
+}
+
 void InitBoids() {
     // Initialize spatial hash
     init_spatial_hash();
@@ -27,9 +50,9 @@ void InitBoids() {
         insert_boid(&boids[i]);
     }
     // Predator
-    boids[PREDITOR_INDEX].position = (Vector2){ SCREEN_WIDTH/2, SCREEN_HEIGHT/2 };
-    boids[PREDITOR_INDEX].velocity = (Vector2){ PREDATOR_SPEED, PREDATOR_SPEED };
-    boids[PREDITOR_INDEX].isPredator = true;
+    boids[PREDATOR_INDEX].position = (Vector2){ SCREEN_WIDTH/2, SCREEN_HEIGHT/2 };
+    boids[PREDATOR_INDEX].velocity = (Vector2){ PREDATOR_SPEED, PREDATOR_SPEED };
+    boids[PREDATOR_INDEX].isPredator = true;
 
     // Mouse
     boids[MOUSE_INDEX].position = (Vector2){ -1.0f, -1.0f };
@@ -77,7 +100,7 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
         self->velocity_update = Vector2Add(self->velocity_update, Vector2Scale(forces.separation, AVOID_FACTOR * separationWeight));
 
         // Predator avoidance
-        Vector2 predatorVec = Vector2Subtract(self->position, boids[MAX_BOIDS].position);
+        Vector2 predatorVec = Vector2SubtractTorus(self->position, boids[PREDATOR_INDEX].position);
         float distToPredator = Vector2Length(predatorVec);
         if (distToPredator < PREDATOR_RADIUS) {
             self->predated = true;
@@ -91,7 +114,7 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
 
         // Mouse
         if (mousePressed) {
-            Vector2 mouseVec = Vector2Subtract(self->position, boids[MOUSE_INDEX].position);
+            Vector2 mouseVec = Vector2SubtractTorus(self->position, boids[MOUSE_INDEX].position);
             float distToMouse = Vector2Length(mouseVec);
             if (distToMouse < MOUSE_RADIUS) {
                 self->predated = true;
@@ -110,12 +133,6 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
         self->position_update = Vector2Wrap(self->position_update, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
-    // Move predator (serial)
-    boids[PREDITOR_INDEX].position = Vector2Add(boids[PREDITOR_INDEX].position, Vector2Scale(boids[PREDITOR_INDEX].velocity, GetFrameTime() * 60.0f));
-    //if (boids[PREDITOR_INDEX].position.x < 0 || boids[PREDITOR_INDEX].position.x > SCREEN_WIDTH) boids[PREDITOR_INDEX].velocity.x *= -1;
-    //if (boids[PREDITOR_INDEX].position.y < 0 || boids[PREDITOR_INDEX].position.y > SCREEN_HEIGHT) boids[PREDITOR_INDEX].velocity.y *= -1;
-    boids[PREDITOR_INDEX].position = Vector2Wrap(boids[PREDITOR_INDEX].position, SCREEN_WIDTH, SCREEN_HEIGHT);
-
     // Commit updates and rebuild spatial hash (serial)
     clear_spatial_hash();
     for (int i = 0; i < MAX_BOIDS; i++) {
@@ -124,6 +141,12 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
         insert_boid(&boids[i]);
     }
     insert_boid(&boids[MAX_BOIDS]);
+
+    // Move predator (serial)
+    boids[PREDATOR_INDEX].velocity = Vector2Add(boids[PREDATOR_INDEX].velocity, PreditorAjustment());
+    boids[PREDATOR_INDEX].velocity = Vector2ClampValue(boids[PREDATOR_INDEX].velocity, MIN_SPEED, PREDATOR_SPEED);
+    boids[PREDATOR_INDEX].position = Vector2Add(boids[PREDATOR_INDEX].position, Vector2Scale(boids[PREDATOR_INDEX].velocity, GetFrameTime() * 60.0f));
+    boids[PREDATOR_INDEX].position = Vector2Wrap(boids[PREDATOR_INDEX].position, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 static Color colors[11] = {
@@ -182,6 +205,8 @@ void DrawPreditor(Boid boid) {
     // Normalize velocity to get direction
     Vector2 dir = Vector2Normalize(boid.velocity);
 
+    DrawCircleLines(boid.position.x, boid.position.y, PREDATOR_VISUAL_RADIUS, BLUE);
+
     // Draw main circle
     DrawCircleLinesV(boid.position, PREDATOR_RADIUS, RED);
 
@@ -207,7 +232,7 @@ void DrawMouse(Boid boid) {
 void DrawBoids() {
     number_drawn = 0;
     for (int i = 0; i < MAX_BOIDS; i++) DrawBoid(boids[i]);
-    DrawPreditor(boids[PREDITOR_INDEX]);
+    DrawPreditor(boids[PREDATOR_INDEX]);
     if (mousePressed) DrawMouse(boids[MOUSE_INDEX]);
 }
 
