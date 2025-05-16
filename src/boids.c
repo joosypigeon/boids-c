@@ -178,25 +178,26 @@ int int_log2(int x) {
 
 int number_drawn = 0;
 
-void DrawBoid(Boid boid) {
+void DrawBoid(Boid *boid) {
     number_drawn++;
     float size = BOID_RADIUS;
-    Vector2 topLeft = { boid.position.x - size / 2, boid.position.y - size / 2 };
-    Color color =  drawDensity ? colors[int_log2(boid.neighborCount + boid.nearNeighborCount)] : DARKGRAY;
+    Vector2 topLeft = { boid->position.x - size / 2, boid->position.y - size / 2 };
+    Color color =  drawDensity ? colors[int_log2(boid->neighborCount + boid->nearNeighborCount)] : DARKGRAY;
+    color = debugBoid == boid ? RED : color;
     DrawRectangleV(topLeft, (Vector2){size, size}, color);
     if (drawFullGlyph) {
         // Normalize velocity to get direction
-        Vector2 dir = Vector2Normalize(boid.velocity);
+        Vector2 dir = Vector2Normalize(boid->velocity);
 
         // Draw main circle
-        DrawCircleLinesV(boid.position, PROTECTED_RADIUS/2.0, boid.predated ? GREEN : color);
+        DrawCircleLinesV(boid->position, PROTECTED_RADIUS/2.0, boid->predated ? GREEN : color);
 
         // Compute tail endpoint (outside of the circle)
         Vector2 tailDir = Vector2Scale(dir, -(10.0f + 10)); // 10 pixels past edge
-        Vector2 tailEnd = Vector2Add(boid.position, tailDir);
+        Vector2 tailEnd = Vector2Add(boid->position, tailDir);
 
         // Draw tail line
-        DrawLineV(boid.position, tailEnd, boid.predated ? GREEN : color);
+        DrawLineV(boid->position, tailEnd, boid->predated ? GREEN : color);
     }
 }
 
@@ -231,7 +232,7 @@ void DrawMouse(Boid boid) {
 
 void DrawBoids() {
     number_drawn = 0;
-    for (int i = 0; i < MAX_BOIDS; i++) DrawBoid(boids[i]);
+    for (int i = 0; i < MAX_BOIDS; i++) DrawBoid(&boids[i]);
     DrawPreditor(boids[PREDATOR_INDEX]);
     if (mousePressed) DrawMouse(boids[MOUSE_INDEX]);
 }

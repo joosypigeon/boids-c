@@ -5,7 +5,7 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#define MAX_BOIDS 5000
+#define MAX_BOIDS 100
 #define PREDATOR_INDEX MAX_BOIDS
 #define MOUSE_INDEX (MAX_BOIDS + 1)
 
@@ -38,6 +38,7 @@ extern bool drawFullGlyph;
 extern bool drawDensity;
 extern bool nearestNeighboursNetwork;
 
+
 // Boid structure
 typedef struct Boid {
     Vector2 position;
@@ -49,6 +50,8 @@ typedef struct Boid {
     bool predated;
     bool isPredator;
 } Boid;
+
+extern Boid *debugBoid;
 
 extern Boid boids[MAX_BOIDS+2];
 

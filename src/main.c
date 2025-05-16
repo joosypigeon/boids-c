@@ -12,6 +12,7 @@ bool drawDensity = false;
 bool mousePressed = false;
 bool nearestNeighboursNetwork = false;
 bool pauseSimulation = false;
+Boid *debugBoid = NULL;
 
 int main(void)
 {
@@ -22,8 +23,12 @@ int main(void)
 
     // Get the primary monitor's resolution before window creation
     int monitor = GetCurrentMonitor();
-    SCREEN_WIDTH = GetMonitorWidth(monitor);
     SCREEN_HEIGHT = GetMonitorHeight(monitor);
+    SCREEN_WIDTH = GetMonitorWidth(monitor);
+    printf("Monitor %d: %d x %d\n", monitor, SCREEN_WIDTH, SCREEN_HEIGHT);
+    SCREEN_WIDTH = (SCREEN_WIDTH/CELL_SIZE)*CELL_SIZE;
+    SCREEN_HEIGHT = (SCREEN_HEIGHT/CELL_SIZE)*CELL_SIZE;
+    printf("Monitor %d: %d x %d\n", monitor, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 
     SetTargetFPS(60);
@@ -39,11 +44,19 @@ int main(void)
         if (IsKeyPressed(KEY_SPACE)) pauseSimulation = !pauseSimulation;
         if (!pauseSimulation) UpdateBoids(alignmentWeight, cohesionWeight, separationWeight);
 
+        if(IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)){
+            if(debugBoid) debugBoid = NULL;
+            else debugBoid = FindNearestBoid(GetMousePosition());
+        }
+
         BeginDrawing();
             if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
                 mousePressed = true;
-                boids[MAX_BOIDS + 1].position = GetMousePosition();
-            } else mousePressed = false;
+                boids[PREDATOR_INDEX].position = GetMousePosition();
+            } else {
+                mousePressed = false;
+                boids[PREDATOR_INDEX].position = (Vector2){ -1.0f, -1.0f };
+            }
             ClearBackground(RAYWHITE);
             DrawBoids();
             if(nearestNeighboursNetwork) DrawNearestNeighborNetwork();

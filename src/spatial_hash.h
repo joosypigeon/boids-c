@@ -10,7 +10,7 @@
 #define CELL_HEIGHT (SCREEN_HEIGHT / CELL_SIZE)
 
 
-#define INITIAL_MAX_BOIDS_PER_CELL 256 // Tweak as needed
+#define INITIAL_MAX_BOIDS_PER_CELL 1024 // Tweak as needed
 
 typedef struct {
     Vector2 alignment;
@@ -39,6 +39,8 @@ void DrawNearestNeighbor(Boid *boid);
 
 Vector2 Vector2SubtractTorus(Vector2 a, Vector2 b);
 float DistanceOnTorus(Vector2 a, Vector2 b);
+
+Boid *FindNearestBoid(Vector2 position);
 
 #endif // SPATIAL_HASH_H
 

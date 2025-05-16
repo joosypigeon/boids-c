@@ -99,6 +99,34 @@ FlockForces ComputeFlockForces(Boid *boid) {
     return forces;
 }
 
+Boid *FindNearestBoid(Vector2 position) {
+    int cell_x = (int)(position.x / CELL_SIZE);
+    int cell_y = (int)(position.y / CELL_SIZE);
+
+    Boid *nearest_boid = NULL;
+    float nearest_distance = 10000.0f;
+
+    for (int dx = -1; dx <= 1; ++dx) {
+        for (int dy = -1; dy <= 1; ++dy) {
+            int nx = cell_x + dx;
+            int ny = cell_y + dy;
+            unsigned int index = hash_cell(WRAP_MOD(nx, CELL_WIDTH), WRAP_MOD(ny, CELL_HEIGHT));
+            HashCell* cell = &hash_table[index];
+            for (int j = 0; j < cell->length; ++j) {
+                Boid* neighbor = cell->boids[j];
+                if (neighbor != &boids[MOUSE_INDEX]) {
+                    float dist = DistanceOnTorus(position, neighbor->position);
+                    if (dist < nearest_distance) {
+                        nearest_distance = dist;
+                        nearest_boid = neighbor;
+                    }
+                }
+            }
+        }
+    }
+    return nearest_boid;
+}
+
 
 int ceil_div(int a, int b) {
     // Expect both a and b to be positive
@@ -134,7 +162,7 @@ Vector2 PreditorAjustment(){
                         Vector2 to_neighbor = Vector2Normalize(diff);
                         float alignment = Vector2DotProduct(predator_dir, to_neighbor);  // ranges from -1.0 to 1.0
                         float scale = (alignment + 1.0f) * 0.5f;
-                        Vector2 scaled_diff = Vector2Scale(diff, scale);
+                        Vector2 scaled_diff = Vector2Scale(diff, scale*scale*scale);
                         preditor_adjustment = Vector2Add(preditor_adjustment, scaled_diff);
                     }
                 }
