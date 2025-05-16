@@ -51,14 +51,16 @@ void InitBoids() {
     }
     // Predator
     boids[PREDATOR_INDEX].position = (Vector2){ SCREEN_WIDTH/2, SCREEN_HEIGHT/2 };
+    printf("Predator position: (%.2f, %.2f)\n", boids[PREDATOR_INDEX].position.x, boids[PREDATOR_INDEX].position.y);
     boids[PREDATOR_INDEX].velocity = (Vector2){ PREDATOR_SPEED, PREDATOR_SPEED };
     boids[PREDATOR_INDEX].isPredator = true;
+    //insert_boid(&boids[PREDATOR_INDEX]);
 
     // Mouse
     boids[MOUSE_INDEX].position = (Vector2){ -1.0f, -1.0f };
     boids[MOUSE_INDEX].velocity = (Vector2){ 0.0f, 0.0f };
     boids[MOUSE_INDEX].isPredator = false;
-    insert_boid(&boids[MAX_BOIDS]);
+
 }
 
 Vector2 Vector2Wrap(Vector2 v, float width, float height)
@@ -201,25 +203,28 @@ void DrawBoid(Boid *boid) {
     }
 }
 
-void DrawPreditor(Boid boid) {
+void DrawPreditor() {
     number_drawn++;
-    // Normalize velocity to get direction
-    Vector2 dir = Vector2Normalize(boid.velocity);
 
-    DrawCircleLines(boid.position.x, boid.position.y, PREDATOR_VISUAL_RADIUS, BLUE);
+    Boid *predator = &boids[MAX_BOIDS];
+
+    // Normalize velocity to get direction
+    Vector2 dir = Vector2Normalize(predator->velocity);
+
+    DrawCircleLines(predator->position.x, predator->position.y, PREDATOR_VISUAL_RADIUS, BLUE);
 
     // Draw main circle
-    DrawCircleLinesV(boid.position, PREDATOR_RADIUS, RED);
+    DrawCircleLinesV(predator->position, PREDATOR_RADIUS, RED);
 
     // Draw center dot
-    DrawCircleV(boid.position, 2.0f, DARKGRAY);
+    DrawCircleV(predator->position, 2.0f, DARKGRAY);
 
     // Compute tail endpoint (outside of the circle)
     Vector2 tailDir = Vector2Scale(dir, -(10.0f + 10)); // 10 pixels past edge
-    Vector2 tailEnd = Vector2Add(boid.position, tailDir);
+    Vector2 tailEnd = Vector2Add(predator->position, tailDir);
 
     // Draw tail line
-    DrawLineV(boid.position, tailEnd, BLUE);
+    DrawLineV(predator->position, tailEnd, BLUE);
 }
 
 void DrawMouse(Boid boid) {
@@ -233,7 +238,7 @@ void DrawMouse(Boid boid) {
 void DrawBoids() {
     number_drawn = 0;
     for (int i = 0; i < MAX_BOIDS; i++) DrawBoid(&boids[i]);
-    DrawPreditor(boids[PREDATOR_INDEX]);
+    DrawPreditor();
     if (mousePressed) DrawMouse(boids[MOUSE_INDEX]);
 }
 

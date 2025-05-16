@@ -42,5 +42,6 @@ float DistanceOnTorus(Vector2 a, Vector2 b);
 
 Boid *FindNearestBoid(Vector2 position);
 
+void DrawCells(Vector2 position);
 #endif // SPATIAL_HASH_H
 

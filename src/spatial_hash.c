@@ -59,6 +59,20 @@ void insert_boid(Boid* p) {
     }
 }
 
+void DrawCells(Vector2 position) {
+
+    int cell_x = (int)(position.x / CELL_SIZE);
+    int cell_y = (int)(position.y / CELL_SIZE);
+
+    for (int dx = -1; dx <= 1; ++dx) {  
+        for (int dy = -1; dy <= 1; ++dy) {
+            int nx = cell_x + dx;
+            int ny = cell_y + dy;
+            DrawRectangleLines(WRAP_MOD(nx, CELL_WIDTH) * CELL_SIZE, WRAP_MOD(ny, CELL_HEIGHT) * CELL_SIZE, CELL_SIZE, CELL_SIZE, BLUE);
+        }
+    }
+}
+
 
 
 FlockForces ComputeFlockForces(Boid *boid) {

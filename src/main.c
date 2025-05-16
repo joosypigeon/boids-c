@@ -52,13 +52,14 @@ int main(void)
         BeginDrawing();
             if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
                 mousePressed = true;
-                boids[PREDATOR_INDEX].position = GetMousePosition();
+                boids[MOUSE_INDEX].position = GetMousePosition();
             } else {
                 mousePressed = false;
-                boids[PREDATOR_INDEX].position = (Vector2){ -1.0f, -1.0f };
+                boids[MOUSE_INDEX].position = (Vector2){ -1.0f, -1.0f };
             }
             ClearBackground(RAYWHITE);
             DrawBoids();
+            if(debugBoid) DrawCells(debugBoid->position);
             if(nearestNeighboursNetwork) DrawNearestNeighborNetwork();
             DrawText("Boids with Predator Simulation", 20, 10, 20, DARKGRAY);
             DrawText("Current Resolution:", 20, 30, 20, DARKGRAY);
@@ -104,6 +105,8 @@ int main(void)
                 TextFormat("Separation (%.2f)", separationWeight),
                 NULL,
                 &separationWeight, 0.0f, 10.0f);
+
+        
 
         EndDrawing();
     }
