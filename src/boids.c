@@ -40,7 +40,7 @@ void InitBoids() {
 
     // Initialize boids
     for (int i = 0; i < MAX_BOIDS; i++) {
-        boids[i].position = (Vector2){ GetRandomValue(0, SCREEN_WIDTH), GetRandomValue(0, SCREEN_HEIGHT) };
+        boids[i].position = (Vector2){ GetRandomValue(0, SCREEN_WIDTH) - 1, GetRandomValue(0, SCREEN_HEIGHT) - 1};
         float angle = GetRandomValue(0, 360) * DEG2RAD;
         float speed = random_normal(4.0f, 3.0f);
         boids[i].velocity = Vector2Scale((Vector2){ cosf(angle), sinf(angle) }, speed);

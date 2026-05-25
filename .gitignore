@@ -1,43 +1,62 @@
 # ─── Compiled object files ───
 *.o
 *.obj
+*.lo
 
 # ─── Executables and binary output ───
 *.exe
 *.out
 *.elf
 *.bin
-main
 a.out
+main
+boids
 
 # ─── Core dumps ───
 core
+core.*
 
-# ─── Build artifacts ───
+# ─── Build directories ───
 /build/
 /bin/
 /dist/
+/out/
+cmake-build-*/
 
-# ─── Make/CMake/Autotools cache ───
-Makefile
+# ─── CMake build files ───
 CMakeCache.txt
 CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+
+# ─── Make/CMake/Autotools generated files ───
 config.log
 config.status
-configure
 autom4te.cache/
+
+# Be careful with this:
+# Only ignore Makefile if it is generated, not if you wrote it yourself.
+# Makefile
+
+# ─── Docker/local workspace files ───
+.env
+.env.*
+!.env.example
 
 # ─── Temporary files ───
 *~
 *.swp
+*.swo
 *.tmp
 *.bak
 *.rej
 *.orig
 
 # ─── OS-specific noise ───
-.DS_Store  # macOS
-Thumbs.db  # Windows
+.DS_Store
+Thumbs.db
 
 # ─── IDE/editor configs ───
 .vscode/
@@ -52,11 +71,11 @@ Thumbs.db  # Windows
 *.dSYM/
 
 # ─── Lisp: ignore temp but not source ───
-*.fasl          # compiled Lisp output
-*.lisp~         # editor backups
-*.lsp~          
-*.cl~           
-*.tmp.lisp      
+*.fasl
+*.lisp~
+*.lsp~
+*.cl~
+*.tmp.lisp
 
 # ─── Tests and scratch files ───
 *.testout
