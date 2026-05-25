@@ -34,6 +34,17 @@ void clear_spatial_hash(void) {
 void insert_boid(Boid* p) {
     int cell_x = (int)(p->position.x / CELL_SIZE);
     int cell_y = (int)(p->position.y / CELL_SIZE);
+    
+    if (cell_x < 0 || cell_x >= CELL_WIDTH ||
+        cell_y < 0 || cell_y >= CELL_HEIGHT) {
+        fprintf(stderr,
+            "insert_boid out of bounds: pos=(%.2f, %.2f), cell=(%d, %d), grid=(%d, %d), screen=(%d, %d)\n",
+            p->position.x, p->position.y,
+            cell_x, cell_y,
+            CELL_WIDTH, CELL_HEIGHT,
+            SCREEN_WIDTH, SCREEN_HEIGHT);
+        abort();
+    }
 
     assert(cell_x >= 0 && cell_x < CELL_WIDTH);
     assert(cell_y >= 0 && cell_y < CELL_HEIGHT);

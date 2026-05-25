@@ -29,22 +29,46 @@ target_include_directories(boids PRIVATE
     ${RAYLIB_INCLUDE_DIRS}
 )
 
-target_link_directories(boids PRIVATE
-    ${RAYLIB_LIBRARY_DIRS}
-)
-
 target_compile_options(boids PRIVATE
     ${RAYLIB_CFLAGS_OTHER}
     -Wall
     -Wextra
 )
 
-target_link_libraries(boids PRIVATE
-    ${RAYLIB_LIBRARIES}
-    GL
-    m
-    pthread
-    dl
-    rt
-    X11
+# Prefer the static raylib archive if it exists.
+# This avoids the host later needing libraylib.so.600.
+find_library(RAYLIB_STATIC
+    NAMES libraylib.a raylib
+    PATHS
+        /usr/local/lib
+        /usr/lib
+        /usr/lib/x86_64-linux-gnu
+    NO_DEFAULT_PATH
 )
+
+if(RAYLIB_STATIC)
+    message(STATUS "Using static raylib: ${RAYLIB_STATIC}")
+    target_link_libraries(boids PRIVATE
+        ${RAYLIB_STATIC}
+        GL
+        m
+        pthread
+        dl
+        rt
+        X11
+    )
+else()
+    message(WARNING "Static raylib not found; falling back to pkg-config raylib libraries")
+    target_link_directories(boids PRIVATE
+        ${RAYLIB_LIBRARY_DIRS}
+    )
+    target_link_libraries(boids PRIVATE
+        ${RAYLIB_LIBRARIES}
+        GL
+        m
+        pthread
+        dl
+        rt
+        X11
+    )
+endif()
