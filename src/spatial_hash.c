@@ -32,22 +32,29 @@ void clear_spatial_hash(void) {
 }
 
 void insert_boid(Boid* p) {
+    p->position.x = fmodf(p->position.x, (float)SCREEN_WIDTH);
+    p->position.y = fmodf(p->position.y, (float)SCREEN_HEIGHT);
+
+    if (p->position.x < 0) p->position.x += SCREEN_WIDTH;
+    if (p->position.y < 0) p->position.y += SCREEN_HEIGHT;
+
+    // Defensive correction for rare floating-point boundary cases
+    if (p->position.x >= SCREEN_WIDTH)  p->position.x = 0.0f;
+    if (p->position.y >= SCREEN_HEIGHT) p->position.y = 0.0f;
+
     int cell_x = (int)(p->position.x / CELL_SIZE);
     int cell_y = (int)(p->position.y / CELL_SIZE);
-    
+
     if (cell_x < 0 || cell_x >= CELL_WIDTH ||
         cell_y < 0 || cell_y >= CELL_HEIGHT) {
         fprintf(stderr,
-            "insert_boid out of bounds: pos=(%.2f, %.2f), cell=(%d, %d), grid=(%d, %d), screen=(%d, %d)\n",
+            "insert_boid out of bounds: pos=(%.8f, %.8f), cell=(%d, %d), grid=(%d, %d), screen=(%d, %d)\n",
             p->position.x, p->position.y,
             cell_x, cell_y,
             CELL_WIDTH, CELL_HEIGHT,
             SCREEN_WIDTH, SCREEN_HEIGHT);
         abort();
     }
-
-    assert(cell_x >= 0 && cell_x < CELL_WIDTH);
-    assert(cell_y >= 0 && cell_y < CELL_HEIGHT);
 
     unsigned int index = hash_cell(cell_x, cell_y);
 
@@ -56,17 +63,24 @@ void insert_boid(Boid* p) {
     if (cell->length < cell->max_length) {
         cell->boids[cell->length++] = p;
     } else {
-        printf("Cell (%d, %d) full current max %d, reallocating...\n", cell_x, cell_y, cell->max_length);
+        printf("Cell (%d, %d) full current max %d, reallocating...\n",
+               cell_x, cell_y, cell->max_length);
+
         cell->max_length *= 2;
-        Boid** new_boids = realloc(cell->boids, cell->max_length * sizeof(Boid*));
+
+        Boid** new_boids = realloc(cell->boids,
+                                   cell->max_length * sizeof(Boid*));
+
         if (!new_boids) {
             fprintf(stderr, "Failed to realloc boid array!\n");
             exit(1);
         }
+
         cell->boids = new_boids;
         cell->boids[cell->length++] = p;
-    
-        printf("Cell (%d, %d) new max %d\n", cell_x, cell_y, cell->max_length);
+
+        printf("Cell (%d, %d) new max %d\n",
+               cell_x, cell_y, cell->max_length);
     }
 }
 

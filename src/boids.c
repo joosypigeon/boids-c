@@ -65,11 +65,11 @@ void InitBoids() {
 
 Vector2 Vector2Wrap(Vector2 v, float width, float height)
 {
-    if (v.x < 0) v.x += width;
-    else if (v.x >= width) v.x -= width;
+    v.x = fmodf(v.x, width);
+    v.y = fmodf(v.y, height);
 
+    if (v.x < 0) v.x += width;
     if (v.y < 0) v.y += height;
-    else if (v.y >= height) v.y -= height;
 
     return v;
 }
@@ -137,18 +137,37 @@ void UpdateBoids(float alignmentWeight, float cohesionWeight, float separationWe
 
     // Commit updates and rebuild spatial hash (serial)
     clear_spatial_hash();
+
     for (int i = 0; i < MAX_BOIDS; i++) {
         boids[i].velocity = boids[i].velocity_update;
         boids[i].position = boids[i].position_update;
         insert_boid(&boids[i]);
     }
-    insert_boid(&boids[MAX_BOIDS]);
 
-    // Move predator (serial)
-    boids[PREDATOR_INDEX].velocity = Vector2Add(boids[PREDATOR_INDEX].velocity, PreditorAjustment());
-    boids[PREDATOR_INDEX].velocity = Vector2ClampValue(boids[PREDATOR_INDEX].velocity, MIN_SPEED, PREDATOR_SPEED);
-    boids[PREDATOR_INDEX].position = Vector2Add(boids[PREDATOR_INDEX].position, Vector2Scale(boids[PREDATOR_INDEX].velocity, GetFrameTime() * 60.0f));
-    boids[PREDATOR_INDEX].position = Vector2Wrap(boids[PREDATOR_INDEX].position, SCREEN_WIDTH, SCREEN_HEIGHT);
+    // Move predator before inserting it
+    boids[PREDATOR_INDEX].velocity = Vector2Add(
+        boids[PREDATOR_INDEX].velocity,
+        PreditorAjustment()
+    );
+
+    boids[PREDATOR_INDEX].velocity = Vector2ClampValue(
+        boids[PREDATOR_INDEX].velocity,
+        MIN_SPEED,
+        PREDATOR_SPEED
+    );
+
+    boids[PREDATOR_INDEX].position = Vector2Add(
+        boids[PREDATOR_INDEX].position,
+        Vector2Scale(boids[PREDATOR_INDEX].velocity, GetFrameTime() * 60.0f)
+    );
+
+    boids[PREDATOR_INDEX].position = Vector2Wrap(
+        boids[PREDATOR_INDEX].position,
+        SCREEN_WIDTH,
+        SCREEN_HEIGHT
+    );
+
+    insert_boid(&boids[PREDATOR_INDEX]);
 }
 
 static Color colors[11] = {
